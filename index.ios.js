@@ -21,6 +21,12 @@ var List = React.createClass({
       dataSource: ds.cloneWithRows(this.props.data)
     };
   },
+  componentWillReceiveProps: function(newProps){
+    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    this.setState({
+      dataSource: ds.cloneWithRows(newProps.data) 
+    });
+  },
 
   render: function() {
     return (
@@ -32,14 +38,35 @@ var List = React.createClass({
 });
 
 var restaurant = React.createClass({
-  statics: {
-    title: '<TabBarIOS>',
-    description: 'Tab-based navigation.'
+
+  _getTitles: function(results){
+    var titles =[];
+    for (var i = results.length - 1; i >= 0; i--) {
+      titles.push(results[i].title)
+    };
+    return titles
   },
 
+  _handleResponse: function(json){
+    this.setState({
+      dataSource: json,
+      titles: this._getTitles(json)
+    });
+  },
+  componentWillMount: function(){
+    var query = 'http://localhost:3000/restaurants';
+    fetch(query)
+      .then(response => response.json())
+      .then(json => this._handleResponse(json))
+      .catch(error => 
+          console.log("somthing wrong....", error)
+      );
+  },
   getInitialState: function() {
     return {
       selectedTab: 'blueTab',
+      dataSource: [],
+      titles: ["1"]
     };
   },
   render: function() {
@@ -54,7 +81,7 @@ var restaurant = React.createClass({
               selectedTab: 'blueTab',
             });
           }}>
-          <List data={['row 1', 'row 2', 'row 3', 'row 4']}/>
+          <List data={this.state.titles}/>
         </TabBarIOS.Item>
         <TabBarIOS.Item
           icon={{uri: 'featured'}}
@@ -64,7 +91,7 @@ var restaurant = React.createClass({
               selectedTab: 'redTab',
             });
           }}>
-          <List data={['row 5', 'row 6', 'row 7', 'row 8']}/>
+          <List data={["row 5", "row 6", "row 7", "row 8"]}/>
         </TabBarIOS.Item>
       </TabBarIOS>
     );
