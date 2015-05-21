@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react-native');
+var _ = require('underscore');
+
 var {
   AppRegistry,
   StyleSheet,
@@ -37,6 +39,19 @@ var List = React.createClass({
   },
 });
 
+var  DetailView = React.createClass({
+  render: function() {
+    var data = this.props.data;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>{data.title}</Text>
+        <Text style={styles.description}>{data.comment}</Text>
+        <Text style={styles.description}>{data.price}</Text>
+      </View>
+    );
+  }
+}); 
+
 var restaurant = React.createClass({
 
   _getTitles: function(results){
@@ -50,7 +65,8 @@ var restaurant = React.createClass({
   _handleResponse: function(json){
     this.setState({
       dataSource: json,
-      titles: this._getTitles(json)
+      titles: this._getTitles(json),
+      randomData: _.sample(json)
     });
   },
   componentWillMount: function(){
@@ -66,10 +82,12 @@ var restaurant = React.createClass({
     return {
       selectedTab: 'blueTab',
       dataSource: [],
-      titles: ["1"]
+      titles: ["1"],
+      randomData: {}
     };
   },
   render: function() {
+    console.log("random: ", this.state.randomData)
     return (
       <TabBarIOS>
         <TabBarIOS.Item
@@ -91,7 +109,7 @@ var restaurant = React.createClass({
               selectedTab: 'redTab',
             });
           }}>
-          <List data={["row 5", "row 6", "row 7", "row 8"]}/>
+          <DetailView data= {this.state.randomData}/>
         </TabBarIOS.Item>
       </TabBarIOS>
     );
@@ -102,7 +120,23 @@ var styles = StyleSheet.create({
   rowData: {
     marginTop: 30,
     fontSize: 25
-  }
+  },
+  title: {
+    fontSize: 20,
+    margin: 5,
+    color: '#656565'
+  },
+  description: {
+    fontSize: 18,
+    margin: 5,
+    color: '#656565'
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
 });
 
 AppRegistry.registerComponent('restaurant', () => restaurant);
